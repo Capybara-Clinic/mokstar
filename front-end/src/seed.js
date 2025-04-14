@@ -1,9 +1,16 @@
 /* eslint-disable no-plusplus */
-// NOTE: replace process.env.TEST_USER_ID with your Firebase auth user id (can be taken from Firebase)
-export function seedDatabase(firebase) {
+// NOTE: replace process.env.REACT_APP_TEST_USER_ID with your db auth user id (can be taken from db)
+import {
+  collection,
+  addDoc
+} from 'firebase/firestore';
+
+
+export async function seedDatabase(db) {
+  
     const users = [
       {
-        userId: process.env.TEST_USER_ID,
+        userId: process.env.REACT_APP_TEST_USER_ID,
         username: 'capybara',
         fullName: 'capybara Kim',
         emailAddress: 'lidersy961@gmail.com',
@@ -17,7 +24,7 @@ export function seedDatabase(firebase) {
         fullName: 'Raffaello Sanzio da Urbino',
         emailAddress: 'raphael@sanzio.com',
         following: [],
-        followers: [process.env.TEST_USER_ID],
+        followers: [process.env.REACT_APP_TEST_USER_ID],
         dateCreated: Date.now()
       },
       {
@@ -26,7 +33,7 @@ export function seedDatabase(firebase) {
         fullName: 'Salvador Dalí',
         emailAddress: 'salvador@dali.com',
         following: [],
-        followers: [process.env.TEST_USER_ID],
+        followers: [process.env.REACT_APP_TEST_USER_ID],
         dateCreated: Date.now()
       },
       {
@@ -35,22 +42,19 @@ export function seedDatabase(firebase) {
         fullName: 'George Orwell',
         emailAddress: 'george@orwell.com',
         following: [],
-        followers: [process.env.TEST_USER_ID],
+        followers: [process.env.REACT_APP_TEST_USER_ID],
         dateCreated: Date.now()
       }
     ];
   
     // eslint-disable-next-line prefer-const
     for (let k = 0; k < users.length; k++) {
-      firebase.firestore().collection('users').add(users[k]);
-    }
+      await addDoc(collection(db, 'users'), users[k]);
+    };
   
     // eslint-disable-next-line prefer-const
     for (let i = 1; i <= 5; ++i) {
-      firebase
-        .firestore()
-        .collection('photos')
-        .add({
+      await addDoc(collection(db, 'photos'), {
           photoId: i,
           userId: '2',
           imageSrc: `/images/users/raphael/${i}.jpg`,
@@ -70,5 +74,5 @@ export function seedDatabase(firebase) {
           userLongitude: '74.0060°',
           dateCreated: Date.now()
         });
-    }
+    };
   }
