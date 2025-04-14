@@ -4,6 +4,7 @@ import { getFirestore, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 // here i want to import the seed file
+import { seedDatabase } from '../seed';
 
 const config = {
     apiKey: process.env.REACT_APP_API_KEY,
@@ -19,6 +20,6 @@ const firebase = initializeApp(config);
 const { FieldValue } = getFirestore(firebase);
 
 // here is where i want to call the seed file (only once)
-// seedDatabase(firebase);
+seedDatabase(firebase);
 
 export { firebase, FieldValue };
