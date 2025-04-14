@@ -1,0 +1,8 @@
+package list
+
+react
+react-router-dom
+firebase
+tailwindcss@3
+prop-types
+npm-run-all
