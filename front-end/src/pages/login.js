@@ -22,7 +22,9 @@ export default function Login() {
 
     return ( // tailwind?
         <div className="container flex mx-auto max-w-screen-md items-center h-screen">
-            <p>I have no idea!</p>
+            <div className="flex w-3/5">
+                <img src="images/capybara-pace-to-face.jpg" alt="the capybara"></img>
+            </div>
         </div>
     );
 }
