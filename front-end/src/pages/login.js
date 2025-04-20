@@ -3,7 +3,6 @@ import { Link, useNavigate  } from "react-router-dom";
 // import FirebaseContext from "../context/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase";
-import '../styles/app.css';
 import * as ROUTES from '../constants/routes'
 
 

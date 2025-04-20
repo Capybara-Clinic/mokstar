@@ -4,7 +4,6 @@ import { Link, useNavigate  } from "react-router-dom";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
 import { collection, addDoc } from 'firebase/firestore';
-import '../styles/app.css';
 import * as ROUTES from '../constants/routes'
 import { doesUsernameExist } from "../services/firebase";
 
