@@ -29,4 +29,4 @@ console.log('TEST_USER_ID:', process.env.REACT_APP_TEST_USER_ID);
 
 // seedDatabase(db); // 또는 seedDatabase(firebase) → 내부에서 getFirestore() 해도 OK
 
-export { firebase, FieldValue };
+export { firebase, FieldValue, db, auth };
