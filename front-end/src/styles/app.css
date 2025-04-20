@@ -604,6 +604,10 @@ video {
   display: flex;
 }
 
+.grid {
+  display: grid;
+}
+
 .h-2 {
   height: 0.5rem;
 }
