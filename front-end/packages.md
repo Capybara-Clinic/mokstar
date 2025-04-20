@@ -8,3 +8,4 @@ prop-types
 npm-run-all
 post-css
 autoprefixer
+npm install react-loading-skeleton
