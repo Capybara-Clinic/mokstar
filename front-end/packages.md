@@ -6,3 +6,5 @@ firebase
 tailwindcss@3
 prop-types
 npm-run-all
+post-css
+autoprefixer
