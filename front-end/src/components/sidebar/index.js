@@ -1,6 +1,7 @@
 import useUser from "../../hooks/use-user";
 import User from './user';
 import Suggestions from './suggestions';
+import React, {memo} from "react";
 
 export default function Sidebar() {
     const { 
@@ -14,3 +15,5 @@ export default function Sidebar() {
         </div>
     );
 }
+
+User.whyDidYouRender = true;

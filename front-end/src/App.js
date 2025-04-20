@@ -1,3 +1,5 @@
+import './wdyr'; // <--- first import
+
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import * as ROUTES from './constants/routes';
