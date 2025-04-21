@@ -1,30 +1,36 @@
 from flask import Blueprint, request, jsonify
-from extensions import db
 from models.user import User
+from extensions import db
+from utils.security import hash_password, verify_password
 from flask_jwt_extended import create_access_token
-from werkzeug.security import generate_password_hash, check_password_hash
+from schemas.user import user_schema
 
-auth_bp = Blueprint("auth", __name__)
+bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-@auth_bp.route("/register", methods=["POST"])
+@bp.route("/register", methods=["POST"])
 def register():
-    data = request.get_json()
-    hashed_pw = generate_password_hash(data["pw"])
+    data = request.json
+    if User.query.filter_by(user_id=data["user_id"]).first():
+        return jsonify({"msg": "이미 존재하는 ID"}), 400
 
     user = User(
         user_id=data["user_id"],
-        pw=hashed_pw,
+        pw=hash_password(data["pw"]),
         email=data["email"],
         nickname=data["nickname"]
     )
     db.session.add(user)
     db.session.commit()
 
-    access_token = create_access_token(identity=user.user_id)
-    return jsonify({
-        "access_token": access_token,
-        "user": {
-            "user_id": user.user_id,
-            "nickname": user.nickname
-        }
-    }), 201
+    token = create_access_token(identity=user.user_id)
+    return jsonify(access_token=token, user=user_schema.dump(user)), 201
+
+@bp.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    user = User.query.filter_by(user_id=data["user_id"]).first()
+    if not user or not verify_password(user.pw, data["pw"]):
+        return jsonify({"msg": "로그인 실패"}), 401
+
+    token = create_access_token(identity=user.user_id)
+    return jsonify(access_token=token, user=user_schema.dump(user)), 200
