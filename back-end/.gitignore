@@ -335,3 +335,4 @@ __pycache__/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,flask,visualstudiocode,macos,venv
 
+../venv/
