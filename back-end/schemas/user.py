@@ -1,12 +1,10 @@
 from extensions import ma
 from models.user import User
 
-class UserSchema(ma.SQLAlchemySchema):
+class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        load_instance = True
+        exclude = ('pw',)  # 비밀번호는 응답에서 제외
 
-    user_id = ma.auto_field()
-    pw = ma.auto_field(load_only=True)
-    email = ma.auto_field()
-    nickname = ma.auto_field()
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
