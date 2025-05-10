@@ -4,14 +4,16 @@ import Suggestions from './suggestions';
 import React from "react";
 
 export default function Sidebar() {
-    const { 
-        user : { fullName, username, userId, following }
-    } = useUser();
+  const { user } = useUser();
 
-    return (
-        <div className="p-4">
-            <User username={username} fullName={fullName}/>
-            <Suggestions userId={userId} following={following}/>
-        </div>
-    );
+  if (!user) return null;
+
+  const { user_id, nickname } = user;
+
+  return (
+    <div className="p-4">
+      <User user_id={user_id} nickname={nickname} />
+      <Suggestions userId={user_id} following={[]} /> {/* following은 현재 API에 없음 */}
+    </div>
+  );
 }

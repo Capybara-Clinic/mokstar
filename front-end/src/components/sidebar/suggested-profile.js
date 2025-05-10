@@ -1,38 +1,59 @@
-import PropTypes from "prop-types"
+import PropTypes from "prop-types";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-export default function SuggestedProfile({ userDocId, username, profileId, userId}) {
-    const [followed, setFollowed] = useState(false);
+export default function SuggestedProfile({ userId, targetId, nickname }) {
+  const [followed, setFollowed] = useState(false);
 
-    return !followed ? (
-        <div className="flex flex-row items-center align-items justify-between">
-            <div className="flex items-center justify-between">
-                <img
-                    className="rounded-full w-8 flex mr-3"
-                    src={`/images/avatars/${username}.jpg`}
-                    alt=""
-                    />
-            </div>
-            <Link to={`/p/${username}`}>
-                <p className="font-bold text-sm">{username}</p>
-            </Link>
-            <duv>
-                <button
-                className="text-xs font-bold text-blue-medium"
-                type='button'
-                onClick={() => console.log('follow')}
-                >
-                    Follow
-                </button>
-            </duv>
-        </div>
-    ) : null;
+  const handleFollow = async () => {
+    const token = localStorage.getItem('access_token');
+    try {
+      const res = await fetch(`/api/users/${userId}/follow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ target_id: targetId })
+      });
+
+      if (res.ok) {
+        setFollowed(true);
+      } else {
+        console.error('팔로우 실패');
+      }
+    } catch (err) {
+      console.error('팔로우 에러:', err);
+    }
+  };
+
+  return !followed ? (
+    <div className="flex flex-row items-center justify-between">
+      <div className="flex items-center justify-between">
+        <img
+          className="rounded-full w-8 flex mr-3"
+          src={`/images/avatars/${targetId}.jpg`}
+          alt={`${nickname} avatar`}
+        />
+      </div>
+      <Link to={`/p/${targetId}`}>
+        <p className="font-bold text-sm">{nickname}</p>
+      </Link>
+      <div>
+        <button
+          className="text-xs font-bold text-blue-medium"
+          type="button"
+          onClick={handleFollow}
+        >
+          Follow
+        </button>
+      </div>
+    </div>
+  ) : null;
 }
 
 SuggestedProfile.propTypes = {
-    userDocId: PropTypes.string.isRequired,
-    username: PropTypes.string.isRequired,
-    profileId: PropTypes.string.isRequired,
-    userId: PropTypes.string.isRequired
+  userId: PropTypes.string.isRequired,    // 로그인한 사용자 ID
+  targetId: PropTypes.string.isRequired,  // 팔로우할 대상 사용자 ID
+  nickname: PropTypes.string.isRequired   // 대상 사용자 닉네임
 };

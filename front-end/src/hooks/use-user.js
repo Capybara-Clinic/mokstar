@@ -1,20 +1,15 @@
-import { useState, useEffect, useContext } from "react";
-import UserContext from "../context/user";
-import { getUserByUserId } from "../services/firebase";
+import { useEffect, useState } from 'react';
 
 export default function useUser() {
-    const [activeUser, setActiveUser] = useState({});
-    const { user } = useContext(UserContext);
+  const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        async function getUserObjByUserId() {
-            const [response] = await getUserByUserId(user.uid);
-            setActiveUser(response);
-        }
-        if (user?.uid) {
-            getUserObjByUserId();
-        }
-    }, [user]);
+  useEffect(() => {
+    // 현재는 토큰 기반 사용자 정보 조회 API가 없음.
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
-    return { user: activeUser };
+  return { user };
 }
