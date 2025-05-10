@@ -8,16 +8,21 @@
 
 ```
 moksta_project/  
-├── app.py               # 두둔 프로젝트 시~작
-├── config.py            # 기본 설정
-├── .env                 # 모두가 아는 그 것 22
-├── requirements.txt     # 모두가 아는 그 것
-├── models/              # DB 모델
-├── routes/              # 라우트 함수
-├── schemas/             # 직렬화/역직렬화를 위한
-├── extensions.py        # DB JWT등의 익스텐션 보관
-└── uploads/             # 업로드된 사진 파일 보관
-
+├── app.py               # Flask 애플리케이션 진입점
+├── config.py            # 환경설정 및 구성 변수
+├── .env                 # 환경변수 파일 (DB 연결, 시크릿 키 등)
+├── requirements.txt     # 필요 패키지 목록
+├── extensions.py        # SQLAlchemy, JWT, Bcrypt 등 확장 모듈
+├── models.py            # 모든 DB 모델을 한 파일에 통합 (순환 참조 문제 해결)
+├── schemas/             # Marshmallow 스키마 (직렬화) - 그대로 유지
+│   ├── user.py          # User 스키마
+│   ├── bulletin_board.py # BulletinBoard 스키마
+│   └── comment.py       # Comment 스키마
+├── routes/              # API 라우트 핸들러
+│   ├── auth.py          # 인증 관련 라우트
+│   ├── board.py         # 게시판 관련 라우트
+│   └── comment.py       # 댓글 관련 라우트
+└── uploads/             # 업로드된 이미지 저장 디렉토리
 ```
 
 ---
@@ -30,6 +35,7 @@ moksta_project/
 * SQLAlchemy
 * Marshmallow (직렬화)
 * JWT (인증)
+* bcrypt (비밀번호 해싱)
 * python-dotenv (환경변수)
 
 ---
@@ -38,13 +44,11 @@ moksta_project/
 
 1. **레포 클론**
    ```bash
-   git clone https://github.com/your-org/moksta-backend.git
-   cd moksta-backend
+   git clone https://github.com/your-org/moksta-backend.gitcd moksta-backend
    ```
 2. **가상환경 설정**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
+   python -m venv venvsource venv/bin/activate  # Windows: venv\Scripts\activate
    ```
 3. **패키지 설치**
    ```bash
@@ -52,18 +56,11 @@ moksta_project/
    ```
 4. **.env 설정**
    ```env
-   FLASK_ENV=development
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=비밀번호
-   DB_NAME=moksta
-   SECRET_KEY=시크릿키
+   FLASK_ENV=developmentMYSQL_URI=mysql+pymysql://root:password@localhost/mokstarJWT_SECRET_KEY=your_real_secret_keyUPLOAD_FOLDER=uploads
    ```
 5. **DB 초기화**
    ```bash
-   flask db init
-   flask db migrate
-   flask db upgrade
+   flask db initflask db migrateflask db upgrade
    ```
 6. **서버 실행**
    ```bash
@@ -74,10 +71,79 @@ moksta_project/
 
 ## 🧩 핵심 기능
 
-* 회원가입 / 로그인( )JWT 기반 인증 )
+* 회원가입 / 로그인(JWT 기반 인증)
 * 게시글 작성 / 수정 / 삭제
-* 댓글 작성 / 삭제 / 부모 댓글 구조
-* 사용자 인증 및 권한 체크
+* 댓글 및 대댓글 작성 / 삭제
+* 파일 업로드 (이미지)
+* 조회수 관리
+
+---
+
+## 📚 주요 모델
+
+### User 모델
+
+```python
+# models/user.py
+from extensions import db
+
+class User(db.Model):
+    __tablename__ = 'users'
+  
+    user_id = db.Column(db.String(255), primary_key=True)
+    password = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False, unique=True)
+    nickname = db.Column(db.String(255), nullable=False, unique=True)
+  
+    # 관계 설정
+    posts = db.relationship('BulletinBoard', backref='author', lazy=True, cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='author', lazy=True, cascade='all, delete-orphan')
+```
+
+### BulletinBoard 모델
+
+```python
+# models/bulletin_board.py
+from extensions import db
+import datetime
+
+class BulletinBoard(db.Model):
+    __tablename__ = 'bulletin_boards'
+  
+    bill_id = db.Column(db.String(255), primary_key=True)
+    user_id = db.Column(db.String(255), db.ForeignKey('users.user_id'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text)
+    file_path = db.Column(db.String(255))
+    view_count = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.TIMESTAMP, default=datetime.datetime.utcnow)
+    updated_at = db.Column(db.TIMESTAMP, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+  
+    # 관계 설정
+    comments = db.relationship('Comment', backref='post', lazy=True, cascade='all, delete-orphan')
+```
+
+### Comment 모델
+
+```python
+# models/comment.py
+from extensions import db
+import datetime
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+  
+    com_id = db.Column(db.String(255), primary_key=True)
+    bill_id = db.Column(db.String(255), db.ForeignKey('bulletin_boards.bill_id'), nullable=False)
+    user_id = db.Column(db.String(255), db.ForeignKey('users.user_id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    parent_com_id = db.Column(db.String(255), db.ForeignKey('comments.com_id'), nullable=True)
+    created_at = db.Column(db.TIMESTAMP, default=datetime.datetime.utcnow)
+    updated_at = db.Column(db.TIMESTAMP, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+  
+    # 대댓글 관계
+    replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[com_id]), lazy=True)
+```
 
 ---
 
@@ -100,22 +166,11 @@ moksta_project/
 * **설명** : 사용자 계정 생성
 * **요청 바디** (`application/json`)
   ```json
-  {
-    "user_id": "mokpo123",
-    "pw": "password123",
-    "email": "mokpo@mokpo.ac.kr",
-    "nickname": "사용자"
-  }
+  {  "user_id": "mokpo123",  "pw": "password123",  "email": "mokpo@mokpo.ac.kr",  "nickname": "사용자"}
   ```
 * **응답**
   ```json
-  {
-    "access_token": "JWT_TOKEN",
-    "user": {
-      "user_id": "mokpo123",
-      "nickname": "사용자"
-    }
-  }
+  {  "access_token": "JWT_TOKEN",  "user": {    "user_id": "mokpo123",    "nickname": "사용자"  }}
   ```
 
 ---
@@ -126,27 +181,12 @@ moksta_project/
 * **설명** : JWT 로그인 처리
 * **요청 바디**
   ```json
-  {
-    "user_id": "mokpo123",
-    "pw": "password123"
-  }
+  {  "user_id": "mokpo123",  "pw": "password123"}
   ```
 * **응답**
   ```json
-  {
-    "access_token": "JWT_TOKEN",
-    "user": {
-      "user_id": "mokpo123",
-      "nickname": "사용자"
-    }
-  }
+  {  "access_token": "JWT_TOKEN",  "user": {    "user_id": "mokpo123",    "nickname": "사용자"  }}
   ```
-
----
-
-#### 🚧 비밀번호 재설정 *(예정)*
-
-* **URL** : `POST /auth/reset-password`
 
 ---
 
@@ -166,15 +206,7 @@ moksta_project/
 * **URL** : `GET /board?page=1`
 * **응답 예시**
   ```json
-  [
-    {
-      "bill_id": "B001",
-      "title": "첫 글!",
-      "nickname": "사용자",
-      "view_cnt": 10,
-      "created_at": "2025-04-13T12:00:00"
-    }
-  ]
+  [  {    "bill_id": "B001",    "title": "첫 글!",    "nickname": "사용자",    "view_cnt": 10,    "created_at": "2025-04-13T12:00:00"  }]
   ```
 
 ---
@@ -185,20 +217,7 @@ moksta_project/
 * **설명** : 조회수 자동 증가
 * **응답**
   ```json
-  {
-    "bill_id": "B001",
-    "title": "첫 글!",
-    "content": "내용입니다",
-    "file_path": "/media/abc.jpg",
-    "file_type": "image/jpeg",
-    "view_cnt": 11,
-    "created_at": "2025-04-13T12:00:00",
-    "user": {
-      "user_id": "mokpo123",
-      "nickname": "사용자"
-    },
-    "comments": [ ... ]
-  }
+  {  "bill_id": "B001",  "title": "첫 글!",  "content": "내용입니다",  "file_path": "/uploads/abc.jpg",  "view_cnt": 11,  "created_at": "2025-04-13T12:00:00",  "user": {    "user_id": "mokpo123",    "nickname": "사용자"  },  "comments": [ ... ]}
   ```
 
 ---
@@ -210,10 +229,7 @@ moksta_project/
 * **요청 타입** : JSON 또는 `multipart/form-data`
 * **예시**
   ```json
-  {
-    "title": "수정된 제목",
-    "content": "수정된 내용"
-  }
+  {  "title": "수정된 제목",  "content": "수정된 내용"}
   ```
 
 ---
@@ -233,10 +249,7 @@ moksta_project/
 * **인증** : JWT 필요
 * **요청 바디**
   ```json
-  {
-    "content": "댓글입니다",
-    "pre_comid": null
-  }
+  {  "content": "댓글입니다",  "pre_comid": null}
   ```
 
 ---
@@ -246,15 +259,7 @@ moksta_project/
 * **URL** : `GET /board/:bill_id/comments`
 * **응답 예시**
   ```json
-  [
-    {
-      "com_id": "C001",
-      "content": "댓글입니다",
-      "nickname": "사용자",
-      "created_at": "2025-04-13T13:00:00",
-      "pre_comid": null
-    }
-  ]
+  [  {    "com_id": "C001",    "content": "댓글입니다",    "nickname": "사용자",    "created_at": "2025-04-13T13:00:00",    "pre_comid": null  }]
   ```
 
 ---
@@ -265,9 +270,7 @@ moksta_project/
 * **인증** : JWT 필요
 * **요청 바디**
   ```json
-  {
-    "content": "수정된 댓글"
-  }
+  {  "content": "수정된 댓글"}
   ```
 
 ---
@@ -276,5 +279,3 @@ moksta_project/
 
 * **URL** : `DELETE /comments/:com_id`
 * **인증** : JWT 필요
-
----
