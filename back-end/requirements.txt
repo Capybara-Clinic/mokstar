@@ -7,6 +7,8 @@ Flask-Bcrypt==1.0.1
 Flask-Marshmallow==0.15.0
 Flask-CORS==4.0.0
 
+Marshmallow==3.19.0
+
 # 데이터베이스 드라이버
 PyMySQL==1.1.0
 
@@ -16,7 +18,7 @@ marshmallow-sqlalchemy==0.30.0
 Werkzeug==2.3.7
 
 # 이미지 처리 (선택적)
-Pillow==10.1.0
+# Pillow==10.1.0
 
 # 서버 (프로덕션용, 선택적)
-gunicorn==21.2.0
+# gunicorn==21.2.0

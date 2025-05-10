@@ -29,7 +29,7 @@ moksta_project/
 
 ## 🔧 기술 스택
 
-* Python 3.x
+* Python 3.13
 * Flask
 * MySQL
 * SQLAlchemy
