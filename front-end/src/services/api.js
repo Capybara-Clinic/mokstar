@@ -37,12 +37,12 @@ export async function getUserByUserId(userId) {
 }
 */
 
-// ✅ 추천 사용자 목록 (정식 API 명세에 포함)
+// ❌ 미구현
 export async function getSuggestedProfiles(userId) {
-  const res = await apiFetch(`/users/${userId}/suggestions`);
-  if (!res.ok) return [];
-
-  return await res.json();
+  // const res = await apiFetch(`/users/${userId}/suggestions`);
+  // if (!res.ok) return [];
+  return [];
+  // return await res.json();
 }
 
 // ✅ 사용자 팔로우

@@ -5,27 +5,28 @@ import { Link } from "react-router-dom";
 export default function SuggestedProfile({ userId, targetId, nickname }) {
   const [followed, setFollowed] = useState(false);
 
-  const handleFollow = async () => {
-    const token = localStorage.getItem('access_token');
-    try {
-      const res = await fetch(`/api/users/${userId}/follow`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ target_id: targetId })
-      });
+  // Todo : 구현 안됨.
+  // const handleFollow = async () => {
+  //   const token = localStorage.getItem('access_token');
+  //   try {
+  //     const res = await fetch(`/api/users/${userId}/follow`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify({ target_id: targetId })
+  //     });
 
-      if (res.ok) {
-        setFollowed(true);
-      } else {
-        console.error('팔로우 실패');
-      }
-    } catch (err) {
-      console.error('팔로우 에러:', err);
-    }
-  };
+  //     if (res.ok) {
+  //       setFollowed(true);
+  //     } else {
+  //       console.error('팔로우 실패');
+  //     }
+  //   } catch (err) {
+  //     console.error('팔로우 에러:', err);
+  //   }
+  // };
 
   return !followed ? (
     <div className="flex flex-row items-center justify-between">
@@ -43,7 +44,7 @@ export default function SuggestedProfile({ userId, targetId, nickname }) {
         <button
           className="text-xs font-bold text-blue-medium"
           type="button"
-          onClick={handleFollow}
+          // onClick={handleFollow}
         >
           Follow
         </button>
