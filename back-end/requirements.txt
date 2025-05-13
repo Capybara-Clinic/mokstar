@@ -7,6 +7,8 @@ Flask-Bcrypt==1.0.1
 Flask-Marshmallow==0.15.0
 Flask-CORS==4.0.0
 
+# 추가 의존성
+cryptography==44.0.3
 Marshmallow==3.19.0
 
 # 데이터베이스 드라이버
