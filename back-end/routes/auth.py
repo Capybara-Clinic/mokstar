@@ -17,8 +17,11 @@ def register():
         
     # 데이터 유효성 검사
     errors = user_register_schema.validate(json_data)
+    messages = []
+    for key, value in errors.items():
+        messages.append(key+value)
     if errors:
-        return jsonify(errors=errors), 400
+        return jsonify(message=messages[0]), 400
     
     # 사용자 객체 생성
     try:
@@ -65,8 +68,11 @@ def login():
     
     # 데이터 유효성 검사
     errors = user_login_schema.validate(json_data)
+    messages = []
+    for key, value in errors.items():
+        messages.append(key+value)
     if errors:
-        return jsonify(errors=errors), 400
+        return jsonify(message=messages[0]), 400
     
     # 사용자 조회
     user = User.query.filter_by(user_id=json_data['user_id']).first()
