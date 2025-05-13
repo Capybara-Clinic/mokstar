@@ -19,7 +19,7 @@ def register():
     errors = user_register_schema.validate(json_data)
     messages = []
     for key, value in errors.items():
-        messages.append(key+value)
+        messages.append(f'{key} : {value[0]}')
     if errors:
         return jsonify(message=messages[0]), 400
     
@@ -70,7 +70,7 @@ def login():
     errors = user_login_schema.validate(json_data)
     messages = []
     for key, value in errors.items():
-        messages.append(key+value)
+        messages.append(key+value[0])
     if errors:
         return jsonify(message=messages[0]), 400
     
